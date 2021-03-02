@@ -1,26 +1,25 @@
-import React, { useCallback, useContext } from "react";
+import React, { useCallback } from "react";
 import { useHistory } from "react-router-dom";
-import fire from "../firebase";
-import { AuthContext } from "../AuthProvider";
+import { useAuth } from "../contexts/AuthContext";
 
 const Home = (props) => {
   const history = useHistory();
-  const { user } = useContext(AuthContext);
-  const handleSignOut = useCallback(
-    async (values, props) => {
-      fire.auth().signOut();
+  const { user, logout } = useAuth();
+  const handleSignOut = useCallback(async () => {
+    try {
+      await logout();
       history.push("/login");
-    },
-    [history]
-  );
-  console.log(user);
-  if (!user) {
-    history.push("/login");
-  }
+    } catch {
+      // TODO: set error
+    }
+  }, [history, logout]);
   return (
     <main className="container">
       <button onClick={handleSignOut}>Logout</button>
-      <section className="container__box">TODO</section>
+
+      <section className="container__box">
+        <p>{user.displayName}</p>
+      </section>
     </main>
   );
 };

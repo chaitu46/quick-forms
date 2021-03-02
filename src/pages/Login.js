@@ -3,22 +3,26 @@ import { Form, Formik } from "formik";
 import * as Yup from "yup";
 import { TextField } from "../components/TextField";
 import { Link, useHistory } from "react-router-dom";
-import fire from "../firebase";
+import { useAuth } from "../contexts/AuthContext";
 
 const Login = (props) => {
   const history = useHistory();
+  const { login } = useAuth();
+
   const handleLogin = useCallback(
     async (values, props) => {
       const { email, password } = values;
       try {
-        await fire.auth().signInWithEmailAndPassword(email, password);
+        await login(email, password);
         history.push("/");
       } catch (error) {
+        // TODO: handle error.
         alert(error);
       }
     },
-    [history]
+    [history, login]
   );
+
   const initialValues = {
     email: "",
     password: "",
@@ -29,6 +33,7 @@ const Login = (props) => {
       // .min(8, "Minimum characters should be 8")
       .required("Required"),
   });
+
   return (
     <main className="container">
       <section className="container__box">

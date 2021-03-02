@@ -3,26 +3,27 @@ import { Form, Formik } from "formik";
 import * as Yup from "yup";
 import { TextField } from "../components/TextField";
 import { Link, useHistory } from "react-router-dom";
-import fire from "../firebase";
+import { useAuth } from "../contexts/AuthContext";
 
 const Register = (props) => {
   const history = useHistory();
+  const { register, updateProfile } = useAuth();
+
   const handleRegister = useCallback(
     async (values, props) => {
       const { email, password, fullName } = values;
       console.log(values);
       try {
-        const userData = await fire
-          .auth()
-          .createUserWithEmailAndPassword(email, password);
-        await userData.user.updateProfile({ displayName: fullName });
+        const userData = await register(email, password);
+        await updateProfile(userData, fullName);
         history.push("/");
       } catch (error) {
+        // TODO: handle error.
         alert(error);
       }
       props.resetForm();
     },
-    [history]
+    [history, register, updateProfile]
   );
 
   // const passwordRegex = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/;
@@ -46,6 +47,7 @@ const Register = (props) => {
       .oneOf([Yup.ref("password")], "Password not match")
       .required("Required"),
   });
+
   return (
     <main className="container">
       <section className="container__box">
