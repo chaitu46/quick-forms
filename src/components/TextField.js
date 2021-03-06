@@ -5,7 +5,7 @@ export const TextField = ({ label, ...props }) => {
   const [field, meta] = useField(props);
   const isError = meta.touched && meta.error;
   return (
-    <>
+    <div className="text-field">
       <label htmlFor={props.id || props.name}>{label}</label>
       <input
         className={`text-input ${isError && "error"}`}
@@ -15,6 +15,6 @@ export const TextField = ({ label, ...props }) => {
       {isError ? (
         <div className="inline-error-message">{meta.error}</div>
       ) : null}
-    </>
+    </div>
   );
 };

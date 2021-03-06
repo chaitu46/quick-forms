@@ -1,26 +1,10 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useContext, useState, useEffect, useCallback } from "react";
 import { useParams } from "react-router";
 import { db } from "../firebase";
 import firebase from "firebase";
-import { v4 as uuidv4 } from "uuid";
 import { useAuth } from "./AuthContext";
-
-const initialFieldValues = {
-  id: uuidv4(),
-  title: "Untitled Question",
-  name: "input",
-  type: "text",
-  answers: [],
-  required: false,
-  placeholder: "Test box answer",
-};
-
-const initialState = {
-  id: uuidv4(),
-  title: "Untitled Form",
-  description: "",
-  fields: [initialFieldValues],
-};
+import { getInitialFormValues } from "../helper";
+import { useSnackbar } from "notistack";
 
 const FormEntryContext = React.createContext();
 
@@ -28,8 +12,12 @@ export function useFormEntryContext() {
   return useContext(FormEntryContext);
 }
 
-const updateForm = (formId, formValues) =>
-  db.collection("forms").doc(formId).update(formValues);
+const updateForm = async (formId, formValues, enqueueSnackbar) => {
+  await db.collection("forms").doc(formId).update(formValues);
+  enqueueSnackbar("Form update successful.", {
+    variant: "success",
+  });
+};
 
 const createForm = (form) => db.collection("forms").doc(form.id).set(form);
 
@@ -57,16 +45,18 @@ const FormEntryContextApi = {
 export function FormEntryProvider({ children }) {
   const params = useParams();
   const { user } = useAuth();
+  const { enqueueSnackbar } = useSnackbar();
   const [formId, setFormId] = useState(params.formId);
   const [formValues, setFormValues] = useState({ fields: [] });
   const [loading, setLoading] = useState(true);
+  const [autoUpdate, setAutoUpdate] = useState(false);
 
   useEffect(() => {
     console.log("formId", formId);
     if (formId) {
       getFormDetails(formId, setFormValues, setLoading);
     } else {
-      setFormValues(initialState);
+      setFormValues(getInitialFormValues());
     }
   }, [formId, params.formId]);
 
@@ -75,16 +65,26 @@ export function FormEntryProvider({ children }) {
       const timeStamp = firebase.firestore.FieldValue.serverTimestamp();
       const form = { ...formValues, timeStamp, owner: user.uid };
       await createForm(form);
+      enqueueSnackbar("Form creation successful.", {
+        variant: "success",
+      });
       setFormId(form.id);
     } else {
-      updateForm(formId, formValues);
+      updateForm(formId, formValues, enqueueSnackbar);
     }
     console.log("formValues", formValues);
   };
+  useEffect(() => {
+    if (formId && autoUpdate) {
+      updateForm(formId, formValues, enqueueSnackbar);
+      setAutoUpdate(false);
+    }
+  }, [autoUpdate, formValues, formId, enqueueSnackbar]);
   const updateFormValues = (value) => {
     setFormValues((state) => ({ ...state, ...value }));
   };
-  const updateFieldValues = (fieldValues) => {
+  const updateFieldValues = (fieldValues, isQuickUpdate) => {
+    console.log("fieldValues", fieldValues);
     const { fields } = formValues;
     const newFields = fields.map((field) => {
       if (field.id === fieldValues.id) {
@@ -92,14 +92,25 @@ export function FormEntryProvider({ children }) {
       }
       return field;
     });
+    console.log("newFields", newFields);
     setFormValues((state) => ({ ...state, fields: newFields }));
+    if (isQuickUpdate) {
+      setAutoUpdate(true);
+    }
   };
   const addFieldValues = (fieldValues) => {
     setFormValues((state) => ({
       ...state,
       fields: [...state.fields, fieldValues],
     }));
-    handleFormTouch();
+    setAutoUpdate(true);
+  };
+  const deleteFieldValues = (id) => {
+    setFormValues((state) => ({
+      ...state,
+      fields: state.fields.filter((field) => field.id !== id),
+    }));
+    setAutoUpdate(true);
   };
   return (
     <FormEntryContext.Provider
@@ -111,6 +122,7 @@ export function FormEntryProvider({ children }) {
         updateFormValues,
         updateFieldValues,
         addFieldValues,
+        deleteFieldValues,
         ...FormEntryContextApi,
       }}
     >

@@ -35,7 +35,7 @@ const Login = (props) => {
   });
 
   return (
-    <main className="container">
+    <main className="container container--flex">
       <section className="container__box">
         <h1>Login</h1>
         <Formik
@@ -51,7 +51,9 @@ const Login = (props) => {
                 name="password"
                 placeholder="Password"
               />
-              <button type="submit">Login</button>
+              <button className="button" type="submit">
+                Login
+              </button>
             </Form>
           )}
         </Formik>

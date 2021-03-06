@@ -9,16 +9,24 @@ export default function PrivateRoute({
 }) {
   const { user } = useAuth();
   if (!user) {
+    if (rest.path === "/") {
+      return <Redirect to="/guest/form-entry/" />;
+    }
     return <Redirect to="/login" />;
   }
   return (
     <Route
       {...rest}
-      render={(props) => (
-        <Provider>
-          <Component {...props} />
-        </Provider>
-      )}
+      render={(props) => {
+        if (Provider) {
+          return (
+            <Provider>
+              <Component {...props} />
+            </Provider>
+          );
+        }
+        return <Component {...props} />;
+      }}
     />
   );
 }

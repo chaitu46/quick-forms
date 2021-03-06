@@ -12,6 +12,7 @@ const getRecentForms = async (user, setFormsList, setLoading) =>
   db
     .collection("forms")
     .where("owner", "==", user.uid)
+    .orderBy("timeStamp", "desc")
     .onSnapshot((snap) => {
       setFormsList(snap.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
       setLoading(false);

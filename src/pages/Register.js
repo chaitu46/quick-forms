@@ -49,7 +49,7 @@ const Register = (props) => {
   });
 
   return (
-    <main className="container">
+    <main className="container container--flex">
       <section className="container__box">
         <h1>Register here</h1>
         <Formik
@@ -71,7 +71,9 @@ const Register = (props) => {
                 name="repeatPassword"
                 placeholder="Repeat Password"
               />
-              <button type="submit">Login</button>
+              <button className="button" type="submit">
+                Login
+              </button>
             </Form>
           )}
         </Formik>

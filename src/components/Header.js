@@ -1,8 +1,10 @@
 import React, { useCallback } from "react";
+import { useHistory } from "react-router";
 import { useAuth } from "../contexts/AuthContext";
 
-export default function Header({ history }) {
+export default function Header() {
   const { user, logout } = useAuth();
+  const history = useHistory();
 
   const handleLogout = useCallback(async () => {
     try {
@@ -20,11 +22,11 @@ export default function Header({ history }) {
     <header>
       <h1>Quick Forms</h1>
       {!user ? (
-        <button className="auth-button" onClick={handleLogin}>
+        <button className="button auth-button" onClick={handleLogin}>
           Login
         </button>
       ) : (
-        <button className="auth-button" onClick={handleLogout}>
+        <button className="button auth-button" onClick={handleLogout}>
           Logout
         </button>
       )}

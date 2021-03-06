@@ -1,60 +1,90 @@
-import React from "react";
+import React, { useRef } from "react";
 import { GoPlus } from "react-icons/go";
 import FieldComponent from "../components/FieldComponent";
 import FormEntryHeader from "../components/FormEntryHeader";
 import { useFormEntryContext } from "../contexts/FormEntryContext";
-import { v4 as uuidv4 } from "uuid";
-
-const initialFieldValues = {
-  title: "Untitled Question",
-  name: "input",
-  type: "text",
-  answers: [],
-  required: false,
-  placeholder: "Test box answer",
-};
+import { getInitialFieldValues } from "../helper";
+import { IoChevronBackOutline } from "react-icons/io5";
+import { BiCopyAlt } from "react-icons/bi";
 
 export default function FormEntry({ history, match }) {
   const {
+    formId,
     formValues,
     handleFormTouch,
     updateFormValues,
     updateFieldValues,
     addFieldValues,
+    deleteFieldValues,
   } = useFormEntryContext();
+  console.log("formId", formId);
+  const shareURLRef = useRef(null);
+  console.log("formValues", formValues);
   const { fields } = formValues;
+  const shareURL = `${window.location.origin}/form/${formValues.id}`;
+
   return (
     <main className="container container--page">
-      {/* <div> */}
+      <button className="button button--link" onClick={() => history.push("/")}>
+        <IoChevronBackOutline />
+        Back
+      </button>
       <FormEntryHeader
         values={formValues}
         handleFormTouch={handleFormTouch}
         updateFormValues={updateFormValues}
       />
-      {/* <select name="inputTypes">
-          <option value="text"></option>
-          <option value="saab">Saab</option>
-          <option value="mercedes">Mercedes</option>
-          <option value="audi">Audi</option>
-        </select>
-      </div> */}
-      {fields.map((field) => {
+      {fields.map((field, index) => {
         return (
           <FieldComponent
             key={field.id}
             fieldDetails={field}
             handleFormTouch={handleFormTouch}
             updateFieldValues={updateFieldValues}
+            deleteFieldValues={deleteFieldValues}
+            showDelete={index !== 0}
           />
         );
       })}
-      <button
-        onClick={() => addFieldValues({ ...initialFieldValues, id: uuidv4() })}
-      >
-        <GoPlus size="50px" />
-      </button>
-      <button onClick={() => handleFormTouch()}>Create Form</button>
-      <button onClick={() => history.push("/")}>Cancel</button>
+      <div className="new-field-button-container">
+        <button
+          className="button button--new-field"
+          onClick={() => addFieldValues(getInitialFieldValues())}
+        >
+          <GoPlus size="50px" />
+        </button>
+      </div>
+      <div className="form-entry-footer">
+        <button
+          className="button"
+          onClick={() => {
+            handleFormTouch();
+          }}
+        >
+          Create Form
+        </button>
+        {formId ? (
+          <div className="form-entry-share">
+            <label>Share</label>
+            <div className="copy-text">
+              <button
+                className="button button--copy"
+                onClick={() => {
+                  shareURLRef.current.focus();
+                  shareURLRef.current.setSelectionRange(
+                    0,
+                    shareURLRef.current.value.length
+                  );
+                  document.execCommand("copy");
+                }}
+              >
+                <BiCopyAlt />
+              </button>
+              <input type="text" ref={shareURLRef} value={shareURL} readOnly />
+            </div>
+          </div>
+        ) : null}
+      </div>
     </main>
   );
 }

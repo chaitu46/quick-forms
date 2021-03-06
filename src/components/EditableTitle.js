@@ -33,7 +33,7 @@ export default function EditableTitle({ title, handleFormTouch, updateTitle }) {
   return (
     <div className="editable-title">
       <h2>{title}</h2>
-      <button className="button--icon" onClick={handleEditTitle}>
+      <button className="button button--icon" onClick={handleEditTitle}>
         <HiOutlinePencil color="black" size="20px" />
       </button>
     </div>
