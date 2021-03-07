@@ -1,4 +1,5 @@
 import React, { useContext, useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { db } from "../firebase";
 import { useAuth } from "./AuthContext";
 
@@ -30,12 +31,24 @@ const FormListContextApi = {
 
 export function FormListProvider({ children }) {
   const { user } = useAuth();
+  const location = useLocation();
+
   const [formsList, setFormsList] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchParams, setSearchParams] = useState();
 
   useEffect(() => {
-    getRecentForms(user, setFormsList, setLoading);
-  }, [user]);
+    const searchParams = new URLSearchParams(location.search);
+    setSearchParams(searchParams);
+  }, [location]);
+
+  useEffect(() => {
+    if (user || searchParams) {
+      const currentUser = !user ? { uid: searchParams.get("session") } : user;
+      console.log("currentUser", currentUser);
+      getRecentForms(currentUser, setFormsList, setLoading);
+    }
+  }, [user, searchParams]);
   return (
     <FormListContext.Provider
       value={{ formsList, loading, ...FormListContextApi }}

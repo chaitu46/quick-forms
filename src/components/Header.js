@@ -1,28 +1,17 @@
-import React, { useCallback } from "react";
-import { useHistory } from "react-router";
+import React from "react";
+import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 
 export default function Header() {
-  const { user, logout } = useAuth();
-  const history = useHistory();
-
-  const handleLogout = useCallback(async () => {
-    try {
-      await logout();
-      history.push("/login");
-    } catch {
-      // TODO: set error
-    }
-  }, [history, logout]);
-  const handleLogin = useCallback(() => {
-    history.push("/login");
-  }, [history]);
+  const { user, handleHeaderLogin, handleLogout } = useAuth();
 
   return (
     <header>
-      <h1>Quick Forms</h1>
+      <h1>
+        <Link to="/">Quick Forms</Link>
+      </h1>
       {!user ? (
-        <button className="button auth-button" onClick={handleLogin}>
+        <button className="button auth-button" onClick={handleHeaderLogin}>
           Login
         </button>
       ) : (

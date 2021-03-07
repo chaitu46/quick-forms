@@ -5,8 +5,11 @@ import firebase from "firebase";
 import { useAuth } from "./AuthContext";
 import { getInitialFormValues } from "../helper";
 import { useSnackbar } from "notistack";
+import { v4 as uuid4 } from "uuid";
 
 const FormEntryContext = React.createContext();
+
+const sessionUID = uuid4();
 
 export function useFormEntryContext() {
   return useContext(FormEntryContext);
@@ -32,14 +35,9 @@ const getFormDetails = (formId, setFormValues, setLoading) =>
       setLoading(false);
     });
 
-function getFormDetailsById() {
-  // return auth.signOut();
-}
-
 const FormEntryContextApi = {
   useFormEntryContext,
   updateForm,
-  getFormDetailsById,
 };
 
 export function FormEntryProvider({ children }) {
@@ -51,19 +49,48 @@ export function FormEntryProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const [autoUpdate, setAutoUpdate] = useState(false);
 
+  const [urls, setUrls] = useState({});
+  const [sessionId, setSessionId] = useState(sessionUID);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const urls = {};
+    if (formId) {
+      urls.shareURL = `${window.location.origin}/form/${formId}`;
+      if (!user) {
+        setSessionId(sessionUID);
+        urls.answersURL = `${window.location.origin}/guest/form-answers/${formId}?session=${sessionId}`;
+        urls.maintainURL = `${window.location.origin}/guest/form-entry/${formId}?session=${sessionId}`;
+      }
+      setUrls(urls);
+    }
+  }, [user, formId, sessionId]);
+
+  useEffect(() => {
+    if (user && formValues.owner && user.uid !== formValues.owner) {
+      setError("Sorry, you don't have access to this form.");
+    }
+  }, [user, formValues]);
+
   useEffect(() => {
     console.log("formId", formId);
     if (formId) {
       getFormDetails(formId, setFormValues, setLoading);
     } else {
       setFormValues(getInitialFormValues());
+      setLoading(false);
     }
   }, [formId, params.formId]);
 
-  const handleFormTouch = async () => {
+  const handleFormTouch = useCallback(async () => {
     if (!formId) {
       const timeStamp = firebase.firestore.FieldValue.serverTimestamp();
-      const form = { ...formValues, timeStamp, owner: user.uid };
+      const form = {
+        ...formValues,
+        timeStamp,
+        owner: user ? user.uid : sessionId,
+        isGuest: user ? false : true,
+      };
       await createForm(form);
       enqueueSnackbar("Form creation successful.", {
         variant: "success",
@@ -73,18 +100,20 @@ export function FormEntryProvider({ children }) {
       updateForm(formId, formValues, enqueueSnackbar);
     }
     console.log("formValues", formValues);
-  };
+  }, [enqueueSnackbar, formId, formValues, sessionId, user]);
+
   useEffect(() => {
     if (formId && autoUpdate) {
       updateForm(formId, formValues, enqueueSnackbar);
       setAutoUpdate(false);
     }
   }, [autoUpdate, formValues, formId, enqueueSnackbar]);
+
   const updateFormValues = (value) => {
     setFormValues((state) => ({ ...state, ...value }));
   };
+
   const updateFieldValues = (fieldValues, isQuickUpdate) => {
-    console.log("fieldValues", fieldValues);
     const { fields } = formValues;
     const newFields = fields.map((field) => {
       if (field.id === fieldValues.id) {
@@ -92,12 +121,12 @@ export function FormEntryProvider({ children }) {
       }
       return field;
     });
-    console.log("newFields", newFields);
     setFormValues((state) => ({ ...state, fields: newFields }));
     if (isQuickUpdate) {
       setAutoUpdate(true);
     }
   };
+
   const addFieldValues = (fieldValues) => {
     setFormValues((state) => ({
       ...state,
@@ -105,6 +134,7 @@ export function FormEntryProvider({ children }) {
     }));
     setAutoUpdate(true);
   };
+
   const deleteFieldValues = (id) => {
     setFormValues((state) => ({
       ...state,
@@ -112,6 +142,7 @@ export function FormEntryProvider({ children }) {
     }));
     setAutoUpdate(true);
   };
+
   return (
     <FormEntryContext.Provider
       value={{
@@ -123,6 +154,8 @@ export function FormEntryProvider({ children }) {
         updateFieldValues,
         addFieldValues,
         deleteFieldValues,
+        urls,
+        error,
         ...FormEntryContextApi,
       }}
     >

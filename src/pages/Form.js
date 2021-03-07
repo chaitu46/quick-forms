@@ -6,21 +6,25 @@ import { RadioField } from "../components/RadioField";
 import { useHistory, useParams } from "react-router-dom";
 import { db } from "../firebase";
 import { v4 as uuid4 } from "uuid";
+import { LinearProgress } from "@material-ui/core";
+
+const getFieldName = (index, title) => `${title.replace(/ /g, "")}${index}`;
 
 const getInitialValues = (fields = []) => {
   const initialValues = {};
   fields.forEach((field, index) => {
-    initialValues[`${field.title.replace(/ /g, "")}${index}`] = "";
+    initialValues[`${getFieldName(index, field.title)}`] = "";
   });
   return initialValues;
 };
+
 const getValidationSchema = (fields = []) => {
   const validationsObj = {};
   fields.forEach((field, index) => {
     if (field.required) {
       validationsObj[
-        `${field.title.replace(/ /g, "")}${index}`
-      ] = Yup.string().required("Required");
+        `${getFieldName(index, field.title)}`
+      ] = Yup.string().required("Required").trim();
     }
   });
   return validationsObj;
@@ -46,10 +50,9 @@ const FormComponent = (props) => {
   }, [formId]);
 
   const handleFormSubmit = async (values) => {
-    //TODO: parse values
     const parsedValues = formConfig.fields.map((field, index) => ({
       title: field.title,
-      value: values[`${field.title.replace(/ /g, "")}${index}`],
+      value: values[`${getFieldName(index, field.title)}`],
     }));
     const withOwnerValues = {
       fields: parsedValues,
@@ -61,15 +64,15 @@ const FormComponent = (props) => {
   };
 
   if (loading) {
-    return "loading...";
+    return <LinearProgress />;
   }
   const initialValues = getInitialValues(formConfig.fields);
   const validationSchema = Yup.object().shape(
     getValidationSchema(formConfig.fields)
   );
-
+  console.log("formConfig", formConfig);
   return (
-    <main className="container container--page">
+    <>
       <section className="container__box container__box--full-width">
         <h1>{formConfig.title}</h1>
         <p>{formConfig.description}</p>
@@ -87,26 +90,24 @@ const FormComponent = (props) => {
               <form onSubmit={form.handleSubmit}>
                 {formConfig.fields.map((field, index) => {
                   if (field.type === "text") {
+                    const fieldName = getFieldName(index, field.title);
                     return (
                       <section
                         className="container__box container__box--full-width"
-                        key={`${field.title.replace(/ /g, "")}${index}`}
+                        key={fieldName}
                       >
                         <TextField
-                          key={`${field.title.replace(/ /g, "")}${index}`}
+                          key={fieldName}
                           label={field.title}
                           type={field.type}
-                          name={`${field.title.replace(/ /g, "")}${index}`}
+                          name={fieldName}
                           placeholder={field.placeholder}
                         />
                       </section>
                     );
                   }
                   if (field.type === "radio") {
-                    const fieldName = `${field.title.replace(
-                      / /g,
-                      ""
-                    )}${index}`;
+                    const fieldName = getFieldName(index, field.title);
                     return (
                       <section
                         className="container__box container__box--full-width"
@@ -133,7 +134,7 @@ const FormComponent = (props) => {
           );
         }}
       </Formik>
-    </main>
+    </>
   );
 };
 

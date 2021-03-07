@@ -1,36 +1,36 @@
 import React from "react";
-
 import FieldComponent from "../components/FieldComponent";
 import FormEntryHeader from "../components/FormEntryHeader";
-import { useFormEntryContext } from "../contexts/FormEntryContext";
-import { IoChevronBackOutline } from "react-icons/io5";
-
 import FormFieldNewButton from "../components/FormFieldNewButton";
 import FormFieldsFooter from "../components/FormFieldsFooter";
+import { useFormEntryContext } from "../contexts/FormEntryContext";
 import AlertMessage from "../components/AlertMessage";
+import { LinearProgress } from "@material-ui/core";
 
-export default function FormEntry({ history, match }) {
+export default function GuestFormEntry() {
   const {
     formId,
-    formValues = {},
+    formValues,
     handleFormTouch,
     updateFormValues,
     updateFieldValues,
-    addFieldValues,
     deleteFieldValues,
+    addFieldValues,
     urls,
+    loading,
     error,
   } = useFormEntryContext();
+
   const { fields = [] } = formValues;
+  if (loading) {
+    return <LinearProgress />;
+  }
+  console.log("error", error);
   if (error) {
     return <AlertMessage message={error} type="error" />;
   }
   return (
     <>
-      <button className="button button--link" onClick={() => history.push("/")}>
-        <IoChevronBackOutline />
-        Back
-      </button>
       <FormEntryHeader
         values={formValues}
         handleFormTouch={handleFormTouch}
@@ -52,6 +52,7 @@ export default function FormEntry({ history, match }) {
         urls={urls}
         formId={formId}
         handleFormTouch={handleFormTouch}
+        isGuest
       />
     </>
   );
