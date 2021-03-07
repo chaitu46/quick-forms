@@ -18,7 +18,6 @@ export default function RadioPlaceholder({
         placeholder={`${fieldDetails.placeholder} ${index + 1}`}
         onChange={(e) => {
           const newAnswers = [...fieldDetails.answers];
-          console.log("newAnswers", newAnswers);
           newAnswers[index] = e.target.value;
           updateFieldValues({
             ...fieldDetails,

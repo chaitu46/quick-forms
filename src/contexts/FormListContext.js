@@ -45,7 +45,6 @@ export function FormListProvider({ children }) {
   useEffect(() => {
     if (user || searchParams) {
       const currentUser = !user ? { uid: searchParams.get("session") } : user;
-      console.log("currentUser", currentUser);
       getRecentForms(currentUser, setFormsList, setLoading);
     }
   }, [user, searchParams]);

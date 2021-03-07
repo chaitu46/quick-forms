@@ -25,7 +25,6 @@ export default function GuestFormEntry() {
   if (loading) {
     return <LinearProgress />;
   }
-  console.log("error", error);
   if (error) {
     return <AlertMessage message={error} type="error" />;
   }

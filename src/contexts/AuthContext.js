@@ -54,7 +54,6 @@ export function AuthProvider({ children }) {
   const handleRegister = useCallback(
     async (values, props) => {
       const { email, password, fullName } = values;
-      console.log(values);
       try {
         const userData = await register(email, password);
         await updateProfile(userData, fullName);

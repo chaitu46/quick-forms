@@ -70,21 +70,18 @@ const FormComponent = (props) => {
   const validationSchema = Yup.object().shape(
     getValidationSchema(formConfig.fields)
   );
-  console.log("formConfig", formConfig);
   return (
     <>
       <section className="container__box container__box--full-width">
         <h1>{formConfig.title}</h1>
         <p>{formConfig.description}</p>
       </section>
-      {console.log("formConfig", formConfig)}
       <Formik
         initialValues={initialValues}
         validationSchema={validationSchema}
         onSubmit={handleFormSubmit}
       >
         {(form) => {
-          console.log("form", form);
           return (
             <>
               <form onSubmit={form.handleSubmit}>

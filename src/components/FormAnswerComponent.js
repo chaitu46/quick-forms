@@ -16,7 +16,6 @@ export default function FormAnswerComponent({ formId }) {
           ...doc.data(),
           id: doc.id,
         }));
-        console.log("answers", answers);
         setAnswers(answers);
         setLoading(false);
       });

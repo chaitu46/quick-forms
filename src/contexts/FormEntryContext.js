@@ -30,7 +30,6 @@ const getFormDetails = (formId, setFormValues, setLoading) =>
     .doc(formId)
     .onSnapshot((snap) => {
       const data = snap.data();
-      console.log("formValues", data);
       setFormValues(data);
       setLoading(false);
     });
@@ -73,7 +72,6 @@ export function FormEntryProvider({ children }) {
   }, [user, formValues]);
 
   useEffect(() => {
-    console.log("formId", formId);
     if (formId) {
       getFormDetails(formId, setFormValues, setLoading);
     } else {
@@ -99,7 +97,6 @@ export function FormEntryProvider({ children }) {
     } else {
       updateForm(formId, formValues, enqueueSnackbar);
     }
-    console.log("formValues", formValues);
   }, [enqueueSnackbar, formId, formValues, sessionId, user]);
 
   useEffect(() => {

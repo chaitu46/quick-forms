@@ -5,7 +5,6 @@ import { LinearProgress } from "@material-ui/core";
 
 export default function GuestAnswers() {
   const { formsList, loading } = useFormListContext();
-  console.log("formsList", formsList);
   if (loading) {
     return <LinearProgress />;
   }
