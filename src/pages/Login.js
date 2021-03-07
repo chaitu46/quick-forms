@@ -52,6 +52,11 @@ const Login = (props) => {
           Need an account? Register <Link to="/register">here</Link>.
         </p>
       </section>
+      <section className="help-text">
+        <p>
+          <Link to="/guest/form-entry">Try as Guest user.</Link>.
+        </p>
+      </section>
     </div>
   );
 };

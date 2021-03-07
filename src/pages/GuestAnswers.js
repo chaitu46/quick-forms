@@ -18,11 +18,11 @@ export default function GuestAnswers() {
   }
 
   return formsList.map((form) => (
-    <Fragment key={form.id}>
+    <section key={form.id} className="guest-answers-container">
       <div className="answers-header">{form.title}</div>
       <div className="answers-container">
         <FormAnswerComponent formId={form.id} />
       </div>
-    </Fragment>
+    </section>
   ));
 }
