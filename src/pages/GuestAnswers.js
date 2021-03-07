@@ -1,4 +1,4 @@
-import React, { Fragment } from "react";
+import React from "react";
 import { useFormListContext } from "../contexts/FormListContext";
 import FormAnswerComponent from "../components/FormAnswerComponent";
 import { LinearProgress } from "@material-ui/core";
