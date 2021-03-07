@@ -11,6 +11,7 @@ export default function FieldCornerControls({
   return (
     <div className="field-corner">
       <button
+        title={`Delete field ${fieldDetails.title}`}
         className="button button--link"
         onClick={() => deleteFieldValues(fieldDetails.id)}
       >

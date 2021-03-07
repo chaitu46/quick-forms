@@ -13,7 +13,11 @@ export default function ShareUrl({ shareURL, label }) {
     <div className="form-entry-share">
       <label>{label}</label>
       <div className="copy-text">
-        <button className="button button--copy" onClick={handleCopyClick}>
+        <button
+          title="Copy"
+          className="button button--copy"
+          onClick={handleCopyClick}
+        >
           <BiCopyAlt />
         </button>
         <input type="text" ref={shareURLRef} value={shareURL} readOnly />

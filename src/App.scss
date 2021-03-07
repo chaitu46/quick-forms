@@ -170,6 +170,9 @@ h1 {
   &--icon {
     background-color: transparent;
     padding: 0;
+    &:hover{
+      background-color: transparent;
+    }
   }
   &--inline {
     background-color: transparent;
